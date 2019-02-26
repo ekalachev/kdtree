@@ -71,13 +71,13 @@ public class PointSET {
         if (this.coordinates.isEmpty())
             return null;
 
-        double minDistance = Double.NEGATIVE_INFINITY;
+        double minDistance = Double.POSITIVE_INFINITY;
         Point2D nearestPoint = null;
 
         for (Point2D point : this.coordinates) {
             double distance = p.distanceSquaredTo(point);
 
-            if (distance < minDistance) {
+            if (Double.compare(distance, minDistance) < 0) {
                 minDistance = distance;
                 nearestPoint = point;
             }
@@ -94,7 +94,7 @@ public class PointSET {
         ps.insert(new Point2D(0.4, 0.4));
         ps.insert(new Point2D(0.5, 0.5));
 
-        StdOut.println(ps.range(new RectHV(2, 2, 6, 6)));
+        StdOut.println(ps.range(new RectHV(0.2, 0.2, 0.6, 0.6)));
         StdOut.println(ps.nearest(new Point2D(0.2, 0.4)));
         ps.draw();
     }
