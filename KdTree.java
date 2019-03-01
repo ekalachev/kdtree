@@ -50,71 +50,75 @@ public class KdTree {
         if (point == null)
             throw new IllegalArgumentException();
 
-        if (isEmpty())
-            this.root = insertVertical(null, point, new RectHV(0, 0, 1, 1));
-        else
-            insertVertical(this.root, point, this.root.rectangle);
-    }
-
-    private Node insertVertical(Node node, Point2D point, RectHV rectangle) {
-        if (node == null) {
-            size++;
-            return new Node(point, rectangle);
+        if (isEmpty()) {
+            this.root = create(point, new RectHV(0, 0, 1, 1));
+            return;
         }
 
+        insertHorisontal(this.root, point, this.root.rectangle);
+    }
+
+    private void insertHorisontal(Node node, Point2D point, RectHV rectangle) {
         if (Point2D.X_ORDER.compare(node.point, point) > 0) {
-            if (node.left == null) {
-                rectangle = new RectHV(node.rectangle.xmin(), node.rectangle.ymin(),
-                                       node.point.x(), node.rectangle.ymax());
-
-                node.left = insertHorisontal(null, point, rectangle);
-            }
-            else {
-                insertHorisontal(node.left, point, rectangle);
-            }
+            left(node, rectangle, point, true);
         }
         else {
-            if (node.right == null) {
-                rectangle = new RectHV(node.point.x(), node.rectangle.ymin(),
-                                       node.rectangle.xmax(), node.rectangle.ymax());
-                node.right = insertHorisontal(node, point, rectangle);
-            }
-            else {
-                insertHorisontal(node.right, point, rectangle);
-            }
+            right(node, rectangle, point, true);
         }
-
-        return node;
     }
 
-    private Node insertHorisontal(Node node, Point2D point, RectHV rectangle) {
-        if (node == null) {
-            size++;
-            return new Node(point, rectangle);
-        }
-
+    private void insertVertical(Node node, Point2D point, RectHV rectangle) {
         if (Point2D.Y_ORDER.compare(node.point, point) > 0) {
-            if (node.left == null) {
-                rectangle = new RectHV(node.rectangle.xmin(), node.rectangle.ymin(),
-                                       node.rectangle.xmax(), node.point.y());
-                node.left = insertVertical(node, point, rectangle);
-            }
-            else {
-                insertVertical(node.left, point, rectangle);
-            }
+            left(node, rectangle, point, false);
         }
         else {
-            if (node.right == null) {
-                rectangle = new RectHV(node.rectangle.xmin(), node.point.y(),
-                                       node.rectangle.xmax(), node.rectangle.ymax());
-                node.right = insertVertical(node, point, rectangle);
-            }
-            else {
-                insertVertical(node.right, point, rectangle);
-            }
+            right(node, rectangle, point, false);
         }
+    }
 
-        return node;
+    private void right(Node node, RectHV rectangle, Point2D point, boolean horisontal) {
+        if (node.right == null) {
+            RectHV r;
+            if (horisontal)
+                r = new RectHV(node.point.x(), rectangle.ymin(),
+                               rectangle.xmax(), rectangle.ymax());
+            else
+                r = new RectHV(rectangle.xmin(), node.point.y(),
+                               rectangle.xmax(), rectangle.ymax());
+
+            node.right = create(point, r);
+        }
+        else {
+            if (horisontal)
+                insertVertical(node.right, point, node.right.rectangle);
+            else
+                insertHorisontal(node.right, point, node.right.rectangle);
+        }
+    }
+
+    private void left(Node node, RectHV rectangle, Point2D point, boolean horisontal) {
+        if (node.left == null) {
+            RectHV r;
+            if (horisontal)
+                r = new RectHV(rectangle.xmin(), rectangle.ymin(),
+                               node.point.x(), rectangle.ymax());
+            else
+                r = new RectHV(rectangle.xmin(), rectangle.ymin(),
+                               rectangle.xmax(), node.point.y());
+
+            node.left = create(point, r);
+        }
+        else {
+            if (horisontal)
+                insertVertical(node.left, point, node.left.rectangle);
+            else
+                insertHorisontal(node.left, point, node.left.rectangle);
+        }
+    }
+
+    private Node create(Point2D point, RectHV rectangle) {
+        this.size++;
+        return new Node(point, rectangle);
     }
 
     // // does the set contain point p?
