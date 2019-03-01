@@ -7,7 +7,6 @@
 
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
-import edu.princeton.cs.algs4.StdOut;
 
 public class KdTree {
     private class Node {
@@ -51,90 +50,114 @@ public class KdTree {
         if (point == null)
             throw new IllegalArgumentException();
 
-        if (this.root == null) {
-            RectHV rectangle = new RectHV(0, 0, 1, 1);
-            this.root = new Node(point, rectangle);
-            size++;
+        if (isEmpty())
+            this.root = insertVertical(null, point, new RectHV(0, 0, 1, 1));
+        else
+            insertVertical(this.root, point, this.root.rectangle);
+    }
 
-            return;
+    private Node insertVertical(Node node, Point2D point, RectHV rectangle) {
+        if (node == null) {
+            size++;
+            return new Node(point, rectangle);
         }
 
-        if (this.root.point.equals(point))
-            return;
+        if (Point2D.X_ORDER.compare(node.point, point) > 0) {
+            if (node.left == null) {
+                rectangle = new RectHV(node.rectangle.xmin(), node.rectangle.ymin(),
+                                       node.point.x(), node.rectangle.ymax());
 
-        RectHV rectangle;
-
-        if (Point2D.X_ORDER.compare(this.root.point, point) > 0) {
-            if (this.root.left == null) {
-                rectangle = new RectHV(this.root.rectangle.xmin(), this.root.rectangle.ymin(),
-                                       this.root.point.x(), this.root.rectangle.ymax());
-                this.root.left = insertHorisontal(point, rectangle);
+                node.left = insertHorisontal(null, point, rectangle);
             }
             else {
-
+                insertHorisontal(node.left, point, rectangle);
             }
         }
         else {
-            if (this.root.right == null) {
-                rectangle = new RectHV(this.root.point.x(), this.root.rectangle.ymin(),
-                                       this.root.rectangle.xmax(), this.root.rectangle.ymax());
-                this.root.right = insertHorisontal(point, rectangle);
+            if (node.right == null) {
+                rectangle = new RectHV(node.point.x(), node.rectangle.ymin(),
+                                       node.rectangle.xmax(), node.rectangle.ymax());
+                node.right = insertHorisontal(node, point, rectangle);
             }
             else {
-
+                insertHorisontal(node.right, point, rectangle);
             }
         }
+
+        return node;
     }
 
-    private Node insertVertical(Point2D point, RectHV rectangle) {
+    private Node insertHorisontal(Node node, Point2D point, RectHV rectangle) {
+        if (node == null) {
+            size++;
+            return new Node(point, rectangle);
+        }
 
+        if (Point2D.Y_ORDER.compare(node.point, point) > 0) {
+            if (node.left == null) {
+                rectangle = new RectHV(node.rectangle.xmin(), node.rectangle.ymin(),
+                                       node.rectangle.xmax(), node.point.y());
+                node.left = insertVertical(node, point, rectangle);
+            }
+            else {
+                insertVertical(node.left, point, rectangle);
+            }
+        }
+        else {
+            if (node.right == null) {
+                rectangle = new RectHV(node.rectangle.xmin(), node.point.y(),
+                                       node.rectangle.xmax(), node.rectangle.ymax());
+                node.right = insertVertical(node, point, rectangle);
+            }
+            else {
+                insertVertical(node.right, point, rectangle);
+            }
+        }
+
+        return node;
     }
 
-    private Node insertHorisontal(Point2D point, RectHV rectangle) {
-
-    }
-
-    // does the set contain point p?
-    public boolean contains(Point2D p) {
-        if (p == null)
-            throw new IllegalArgumentException();
-
-
-    }
+    // // does the set contain point p?
+    // public boolean contains(Point2D p) {
+    //     if (p == null)
+    //         throw new IllegalArgumentException();
+    //
+    //
+    // }
 
     // draw all points to standard draw
     public void draw() {
 
     }
 
-    // all points that are inside the rectangle (or on the boundary)
-    public Iterable<Point2D> range(RectHV rect) {
-        if (rect == null)
-            throw new IllegalArgumentException();
-
-        Point2D minPoint = new Point2D(rect.xmin(), rect.ymin());
-        Point2D maxPoint = new Point2D(rect.xmax(), rect.ymax());
-
-
-    }
-
-    // a nearest neighbor in the set to point p; null if the set is empty
-    public Point2D nearest(Point2D p) {
-        if (p == null)
-            throw new IllegalArgumentException();
-
-    }
+    // // all points that are inside the rectangle (or on the boundary)
+    // public Iterable<Point2D> range(RectHV rect) {
+    //     if (rect == null)
+    //         throw new IllegalArgumentException();
+    //
+    //     Point2D minPoint = new Point2D(rect.xmin(), rect.ymin());
+    //     Point2D maxPoint = new Point2D(rect.xmax(), rect.ymax());
+    //
+    //
+    // }
+    //
+    // // a nearest neighbor in the set to point p; null if the set is empty
+    // public Point2D nearest(Point2D p) {
+    //     if (p == null)
+    //         throw new IllegalArgumentException();
+    //
+    // }
 
     public static void main(String[] args) {
-        PointSET ps = new PointSET();
-        ps.insert(new Point2D(0.1, 0.1));
-        ps.insert(new Point2D(0.2, 0.2));
-        ps.insert(new Point2D(0.3, 0.3));
-        ps.insert(new Point2D(0.4, 0.4));
-        ps.insert(new Point2D(0.5, 0.5));
+        KdTree ps = new KdTree();
+        ps.insert(new Point2D(0.7, 0.2));
+        ps.insert(new Point2D(0.5, 0.4));
+        ps.insert(new Point2D(0.2, 0.3));
+        ps.insert(new Point2D(0.4, 0.7));
+        ps.insert(new Point2D(0.9, 0.6));
 
-        StdOut.println(ps.range(new RectHV(0.2, 0.2, 0.6, 0.6)));
-        StdOut.println(ps.nearest(new Point2D(0.2, 0.4)));
-        ps.draw();
+        // StdOut.println(ps.range(new RectHV(0.2, 0.2, 0.6, 0.6)));
+        // StdOut.println(ps.nearest(new Point2D(0.2, 0.4)));
+        // ps.draw();
     }
 }
