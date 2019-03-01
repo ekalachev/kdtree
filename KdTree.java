@@ -7,6 +7,7 @@
 
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
+import edu.princeton.cs.algs4.StdOut;
 
 public class KdTree {
     private class Node {
@@ -59,6 +60,9 @@ public class KdTree {
     }
 
     private void insertHorisontal(Node node, Point2D point, RectHV rectangle) {
+        if (node.point.equals(point))
+            return;
+
         if (Point2D.X_ORDER.compare(node.point, point) > 0) {
             left(node, rectangle, point, true);
         }
@@ -68,6 +72,9 @@ public class KdTree {
     }
 
     private void insertVertical(Node node, Point2D point, RectHV rectangle) {
+        if (node.point.equals(point))
+            return;
+
         if (Point2D.Y_ORDER.compare(node.point, point) > 0) {
             left(node, rectangle, point, false);
         }
@@ -121,13 +128,39 @@ public class KdTree {
         return new Node(point, rectangle);
     }
 
-    // // does the set contain point p?
-    // public boolean contains(Point2D p) {
-    //     if (p == null)
-    //         throw new IllegalArgumentException();
-    //
-    //
-    // }
+    // does the set contain point p?
+    public boolean contains(Point2D p) {
+        if (p == null)
+            throw new IllegalArgumentException();
+
+        return containsVertical(this.root, p);
+    }
+
+    private boolean containsVertical(Node node, Point2D p) {
+        if (node == null)
+            return false;
+
+        if (node.point.equals(p))
+            return true;
+
+        if (node.left != null && node.left.rectangle.xmax() >= p.x())
+            return containsHorisontal(node.left, p);
+        else
+            return containsHorisontal(node.right, p);
+    }
+
+    private boolean containsHorisontal(Node node, Point2D p) {
+        if (node == null)
+            return false;
+
+        if (node.point.equals(p))
+            return true;
+
+        if (node.left != null && node.left.rectangle.ymax() >= p.y())
+            return containsVertical(node.left, p);
+        else
+            return containsVertical(node.right, p);
+    }
 
     // draw all points to standard draw
     public void draw() {
@@ -159,6 +192,9 @@ public class KdTree {
         ps.insert(new Point2D(0.2, 0.3));
         ps.insert(new Point2D(0.4, 0.7));
         ps.insert(new Point2D(0.9, 0.6));
+
+        StdOut.println(ps.contains(new Point2D(0.4, 0.7)));
+
 
         // StdOut.println(ps.range(new RectHV(0.2, 0.2, 0.6, 0.6)));
         // StdOut.println(ps.nearest(new Point2D(0.2, 0.4)));
