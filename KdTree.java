@@ -6,6 +6,7 @@
  **************************************************************************** */
 
 import edu.princeton.cs.algs4.Point2D;
+import edu.princeton.cs.algs4.Queue;
 import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.StdOut;
 
@@ -167,17 +168,34 @@ public class KdTree {
 
     }
 
-    // // all points that are inside the rectangle (or on the boundary)
-    // public Iterable<Point2D> range(RectHV rect) {
-    //     if (rect == null)
-    //         throw new IllegalArgumentException();
-    //
-    //     Point2D minPoint = new Point2D(rect.xmin(), rect.ymin());
-    //     Point2D maxPoint = new Point2D(rect.xmax(), rect.ymax());
-    //
-    //
-    // }
-    //
+    // all points that are inside the rectangle (or on the boundary)
+    public Iterable<Point2D> range(RectHV rect) {
+        if (rect == null)
+            throw new IllegalArgumentException();
+
+        if (isEmpty())
+            return null;
+
+        Queue<Point2D> foundPoints = new Queue<>();
+
+        range(this.root, rect, foundPoints);
+
+        return foundPoints;
+    }
+
+    private void range(Node node, RectHV rect, Queue<Point2D> foundPoints) {
+        if (node == null)
+            return;
+
+        if (node.rectangle.intersects(rect)) {
+            if (rect.contains(node.point))
+                foundPoints.enqueue(node.point);
+
+            range(node.left, rect, foundPoints);
+            range(node.right, rect, foundPoints);
+        }
+    }
+
     // // a nearest neighbor in the set to point p; null if the set is empty
     // public Point2D nearest(Point2D p) {
     //     if (p == null)
@@ -193,8 +211,9 @@ public class KdTree {
         ps.insert(new Point2D(0.4, 0.7));
         ps.insert(new Point2D(0.9, 0.6));
 
-        StdOut.println(ps.contains(new Point2D(0.4, 0.7)));
+        //StdOut.println(ps.contains(new Point2D(0.4, 0.7)));
 
+        StdOut.println(ps.range(new RectHV(0, 0.2, 0.5, 0.5)));
 
         // StdOut.println(ps.range(new RectHV(0.2, 0.2, 0.6, 0.6)));
         // StdOut.println(ps.nearest(new Point2D(0.2, 0.4)));
