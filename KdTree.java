@@ -9,11 +9,15 @@ import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.Queue;
 import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.StdDraw;
+import edu.princeton.cs.algs4.StdOut;
 
 public class KdTree {
+    private Node root;
+    private int size;
+
     private class Node {
-        private Point2D point;
-        private RectHV rectangle;
+        private final Point2D point;
+        private final RectHV rectangle;
         private Node left;
         private Node right;
 
@@ -27,9 +31,6 @@ public class KdTree {
             this.rectangle = rectangle;
         }
     }
-
-    private Node root;
-    private int size;
 
     // construct an empty set of points
     public KdTree() {
@@ -130,16 +131,16 @@ public class KdTree {
         if (node.point.equals(p))
             return true;
 
-        if (node.left != null) {
-            boolean goLeft = horisontal
-                             ? node.left.rectangle.ymax() >= p.y()
-                             : node.left.rectangle.xmax() >= p.x();
-
-            if (goLeft)
-                return contains(node.left, p, !horisontal);
+        boolean found = false;
+        if (node.left != null && node.left.rectangle.contains(p)) {
+            found = contains(node.left, p, !horisontal);
         }
 
-        return contains(node.right, p, !horisontal);
+        if (node.right != null && node.right.rectangle.contains(p)) {
+            found = contains(node.right, p, !horisontal);
+        }
+
+        return found;
     }
 
     // draw all points to standard draw
@@ -192,7 +193,7 @@ public class KdTree {
         if (isEmpty())
             return null;
 
-        Queue<Point2D> foundPoints = new Queue<>();
+        Queue<Point2D> foundPoints = new Queue<Point2D>();
 
         range(this.root, rect, foundPoints);
 
@@ -230,7 +231,7 @@ public class KdTree {
 
         Point2D found = node.point;
 
-        if (point.distanceTo(found) < point.distanceTo(nearestPoint))
+        if (point.distanceSquaredTo(found) < point.distanceSquaredTo(nearestPoint))
             nearestPoint = found;
 
         nearestPoint = nearestPoint(node.left, point, nearestPoint);
@@ -241,7 +242,8 @@ public class KdTree {
 
     private Point2D nearestPoint(Node node, Point2D point, Point2D nearestPoint) {
         if (node != null
-                && node.rectangle.distanceTo(point) < nearestPoint.distanceTo(point)) {
+                && node.rectangle.distanceSquaredTo(point) < nearestPoint
+                .distanceSquaredTo(point)) {
             nearestPoint = nearest(node, point, nearestPoint);
         }
 
@@ -250,12 +252,71 @@ public class KdTree {
 
     public static void main(String[] args) {
         KdTree ps = new KdTree();
-        ps.insert(new Point2D(0.7, 0.2));
-        ps.insert(new Point2D(0.5, 0.4));
-        ps.insert(new Point2D(0.2, 0.3));
-        ps.insert(new Point2D(0.4, 0.7));
-        ps.insert(new Point2D(0.9, 0.6));
+        ps.insert(new Point2D(0.5, 0.5));
+        ps.insert(new Point2D(0.0, 0.5));
 
-        ps.draw();
+        StdOut.println(ps.range(new RectHV(0.0, 0.25, 0.25, 0.75)));
+        //
+        // ps.insert(new Point2D(0.5, 0.4));
+        // ps.insert(new Point2D(0.2, 0.3));
+        // ps.insert(new Point2D(0.4, 0.7));
+        // ps.insert(new Point2D(0.9, 0.6));
+
+        // ps.insert(new Point2D(0.0078125, 0.0));
+        // ps.insert(new Point2D(0.0234375, 0.0));
+        // ps.insert(new Point2D(0.0390625, 0.0));
+        // ps.insert(new Point2D(0.109375, 0.0));
+        // ps.insert(new Point2D(0.1171875, 0.0));
+        // ps.insert(new Point2D(0.1328125, 0.0));
+        // ps.insert(new Point2D(0.1484375, 0.0));
+        // ps.insert(new Point2D(0.1640625, 0.0));
+        // ps.insert(new Point2D(0.1953125, 0.0));
+        // ps.insert(new Point2D(0.2109375, 0.0));
+        // ps.insert(new Point2D(0.21875, 0.0));
+        // ps.insert(new Point2D(0.2265625, 0.0));
+        // ps.insert(new Point2D(0.234375, 0.0));
+        // ps.insert(new Point2D(0.2421875, 0.0));
+        // ps.insert(new Point2D(0.265625, 0.0));
+        // ps.insert(new Point2D(0.2734375, 0.0));
+        // ps.insert(new Point2D(0.28125, 0.0));
+        // ps.insert(new Point2D(0.2890625, 0.0));
+        // ps.insert(new Point2D(0.296875, 0.0));
+        // ps.insert(new Point2D(0.3046875, 0.0));
+        // ps.insert(new Point2D(0.3203125, 0.0));
+        // ps.insert(new Point2D(0.328125, 0.0));
+        // ps.insert(new Point2D(0.359375, 0.0));
+        // ps.insert(new Point2D(0.390625, 0.0));
+        // ps.insert(new Point2D(0.4140625, 0.0));
+        // ps.insert(new Point2D(0.421875, 0.0));
+        //
+        // StdOut.println(ps.range(new RectHV(0.00390625, 0.0, 0.01171875, 0.00390625)));
+
+        // ps.insert(new Point2D(0.0, 0.25));
+        // ps.insert(new Point2D(1.0, 0.75));
+        // ps.insert(new Point2D(0.0, 0.125));
+        // ps.insert(new Point2D(0.875, 0.875));
+        // ps.insert(new Point2D(0.75, 0.375));
+        // ps.insert(new Point2D(0.875, 0.625));
+        // ps.insert(new Point2D(0.125, 1.0));
+        // ps.insert(new Point2D(0.75, 0.5));
+        // ps.insert(new Point2D(0.625, 0.125));
+        // ps.insert(new Point2D(0.5, 1.0));
+        // ps.insert(new Point2D(0.25, 0.125));
+        // ps.insert(new Point2D(1.0, 0.875));
+        // ps.insert(new Point2D(0.625, 0.0));
+        // ps.insert(new Point2D(0.375, 0.125));
+        // ps.insert(new Point2D(1.0, 0.625));
+        // ps.insert(new Point2D(0.0, 1.0));
+        // ps.insert(new Point2D(0.375, 0.0));
+        // ps.insert(new Point2D(0.625, 0.5));
+        // ps.insert(new Point2D(0.25, 0.875));
+        // ps.insert(new Point2D(0.125, 0.125));
+        //
+        // ps.draw();
+        //
+        // StdOut.println(ps.contains(new Point2D(0.375, 0.125)));
+        // StdDraw.setPenColor(StdDraw.RED);
+        // StdDraw.setPenRadius(0.01);
+        // StdDraw.point(0.375, 0.125);
     }
 }
