@@ -8,7 +8,7 @@
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.Queue;
 import edu.princeton.cs.algs4.RectHV;
-import edu.princeton.cs.algs4.StdOut;
+import edu.princeton.cs.algs4.StdDraw;
 
 public class KdTree {
     private class Node {
@@ -144,7 +144,44 @@ public class KdTree {
 
     // draw all points to standard draw
     public void draw() {
+        if (isEmpty())
+            return;
 
+        draw(this.root, false);
+    }
+
+    private void draw(Node node, boolean horisontal) {
+        if (node == null)
+            return;
+
+        StdDraw.setPenColor(StdDraw.BLACK);
+        StdDraw.setPenRadius(0.015);
+        StdDraw.point(node.point.x(), node.point.y());
+
+        double xMin, xMax, yMin, yMax;
+
+        if (horisontal) {
+            xMin = node.rectangle.xmin();
+            xMax = node.rectangle.xmax();
+            yMin = node.point.y();
+            yMax = node.point.y();
+
+            StdDraw.setPenColor(StdDraw.BLUE);
+        }
+        else {
+            xMin = node.point.x();
+            xMax = node.point.x();
+            yMin = node.rectangle.ymin();
+            yMax = node.rectangle.ymax();
+
+            StdDraw.setPenColor(StdDraw.RED);
+        }
+
+        StdDraw.setPenRadius();
+        StdDraw.line(xMin, yMin, xMax, yMax);
+
+        draw(node.left, !horisontal);
+        draw(node.right, !horisontal);
     }
 
     // all points that are inside the rectangle (or on the boundary)
@@ -219,14 +256,6 @@ public class KdTree {
         ps.insert(new Point2D(0.4, 0.7));
         ps.insert(new Point2D(0.9, 0.6));
 
-        StdOut.println(ps.contains(new Point2D(0.2, 0.3)));
-
-        StdOut.println(ps.range(new RectHV(0, 0.2, 0.5, 0.5)));
-
-        StdOut.println(ps.nearest(new Point2D(0.1, 0.1)));
-
-        // StdOut.println(ps.range(new RectHV(0.2, 0.2, 0.6, 0.6)));
-        // StdOut.println(ps.nearest(new Point2D(0.2, 0.4)));
-        // ps.draw();
+        ps.draw();
     }
 }
