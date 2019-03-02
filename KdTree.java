@@ -176,24 +176,40 @@ public class KdTree {
     }
 
     // a nearest neighbor in the set to point p; null if the set is empty
-    // public Point2D nearest(Point2D p) {
-    //     if (p == null)
-    //         throw new IllegalArgumentException();
-    //
-    //     if (isEmpty())
-    //         return null;
-    //
-    //     nearest(this.root, p);
-    // }
-    //
-    // private void nearest(Node node, Point2D point) {
-    //     if (node == null) {
-    //         return;
-    //     }
-    //
-    //     nearest(node.left, point);
-    //     nearest(node.right, point);
-    // }
+    public Point2D nearest(Point2D p) {
+        if (p == null)
+            throw new IllegalArgumentException();
+
+        if (isEmpty())
+            return null;
+
+        return nearest(this.root, p, this.root.point);
+    }
+
+    private Point2D nearest(Node node, Point2D point, Point2D nearestPoint) {
+        if (node == null) {
+            return null;
+        }
+
+        Point2D found = node.point;
+
+        if (point.distanceTo(found) < point.distanceTo(nearestPoint))
+            nearestPoint = found;
+
+        nearestPoint = nearestPoint(node.left, point, nearestPoint);
+        nearestPoint = nearestPoint(node.right, point, nearestPoint);
+
+        return nearestPoint;
+    }
+
+    private Point2D nearestPoint(Node node, Point2D point, Point2D nearestPoint) {
+        if (node != null
+                && node.rectangle.distanceTo(point) < nearestPoint.distanceTo(point)) {
+            nearestPoint = nearest(node, point, nearestPoint);
+        }
+
+        return nearestPoint;
+    }
 
     public static void main(String[] args) {
         KdTree ps = new KdTree();
@@ -206,6 +222,8 @@ public class KdTree {
         StdOut.println(ps.contains(new Point2D(0.2, 0.3)));
 
         StdOut.println(ps.range(new RectHV(0, 0.2, 0.5, 0.5)));
+
+        StdOut.println(ps.nearest(new Point2D(0.1, 0.1)));
 
         // StdOut.println(ps.range(new RectHV(0.2, 0.2, 0.6, 0.6)));
         // StdOut.println(ps.nearest(new Point2D(0.2, 0.4)));
